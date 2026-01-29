@@ -12,10 +12,7 @@ export default function HomeScreen({ navigation }: any) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Bem-vindo ao Meu Primeiro App!</Text>
-      <Button
-        title="Ir para Detalhes"
-        onPress={() => navigation.navigate('Details')}
-      />
+      
     </View>
   );
 }

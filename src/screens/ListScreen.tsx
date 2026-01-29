@@ -1,7 +1,7 @@
-import { View, Text, FlatList, StyleSheet, Alert } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { useCallback, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getDocuments } from '../services/firestoreService';
 
 type User = {
   id: string;
@@ -13,16 +13,22 @@ type User = {
 
 export default function ListScreen() {
   const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  // READ carregar do AsyncStorage ao focar
+  // READ carregar do Firestore ao focar
   useFocusEffect(
     useCallback(() => {
       const loadUsers = async () => {
+        setLoading(true);
         try {
-          const storedUsers = await AsyncStorage.getItem('Users');
-          setUsers(storedUsers ? JSON.parse(storedUsers) : []);
+          const firebaseUsers = await getDocuments('users');
+          setUsers(firebaseUsers as User[]);
+          console.log('✅ Usuários carregados do Firestore:', firebaseUsers.length);
         } catch (error) {
-          console.log('Usuários erro ao carregar usuários', error);
+          console.error('❌ Erro ao carregar usuários do Firestore:', error);
+          Alert.alert('Erro', 'Não foi possível carregar a lista de usuários');
+        } finally {
+          setLoading(false);
         }
       };
       loadUsers();
@@ -32,17 +38,23 @@ export default function ListScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Lista de Usuários</Text>
-      <FlatList
-        data={users}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.userContainer}>
-            <Text style={styles.userName}>{item.name}</Text>
-            <Text style={styles.userEmail}>{item.email}</Text>
-            <Text style={styles.userPhone}>{item.phone}</Text>
-          </View>
-        )}
-      />
+      {loading ? (
+        <ActivityIndicator size="large" color="#007AFF" />
+      ) : users.length === 0 ? (
+        <Text style={styles.emptyText}>Nenhum usuário registrado</Text>
+      ) : (
+        <FlatList
+          data={users}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <View style={styles.userContainer}>
+              <Text style={styles.userName}>{item.name}</Text>
+              <Text style={styles.userEmail}>{item.email}</Text>
+              <Text style={styles.userPhone}>{item.phone}</Text>
+            </View>
+          )}
+        />
+      )}
     </View>
   );
 }
@@ -75,5 +87,11 @@ const styles = StyleSheet.create({
   userPhone: {
     fontSize: 14,
     color: '#999',
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#999',
+    textAlign: 'center',
+    marginTop: 20,
   },
 });

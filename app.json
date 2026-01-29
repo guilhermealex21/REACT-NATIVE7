@@ -20,6 +20,15 @@
     },
     "web": {
       "bundler": "metro"
+    },
+    "extra": {
+      "firebaseApiKey": "AIzaSyA8HayUhjEF72jpirSTA5jRYJdyU-hOBW4",
+      "firebaseAuthDomain": "crud-react-native-168d4.firebaseapp.com",
+      "firebaseProjectId": "crud-react-native-168d4",
+      "firebaseStorageBucket": "crud-react-native-168d4.firebasestorage.app",
+      "firebaseMessagingSenderId": "89323872259",
+      "firebaseAppId": "1:89323872259:web:16d44f54e9c58f96c6ae36",
+      "firebaseMeasurementId": "G-05CR9VR9L5"
     }
   }
 }

@@ -1,10 +1,17 @@
 import { StatusBar } from 'expo-status-bar';
 import { View, Text, Button, StyleSheet, ScrollView } from 'react-native';
-import { useState } from 'react';
-import ProfileScreen from './src/screens/ProfileScreen';
+import { useState, useEffect } from 'react';
+import RegisterScreen from './src/screens/RegisterScreen';
+import { debugFirebaseConnection } from './src/services/debugFirebase';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState('Home');
+
+  // Executar teste de conexão Firebase ao iniciar
+  useEffect(() => {
+    console.log('🚀 App iniciado - testando conexão com Firebase...');
+    debugFirebaseConnection();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -33,7 +40,7 @@ export default function App() {
         </>
       )}
       {currentScreen === 'Profile' && (
-        <ProfileScreen navigation={{ goBack: () => setCurrentScreen('Home') }} />
+        <RegisterScreen />
       )}
       <StatusBar style="auto" />
     </View>
