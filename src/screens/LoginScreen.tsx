@@ -9,34 +9,19 @@ import {
   ActivityIndicator,
   ScrollView,
 } from 'react-native';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
-import { auth } from '../services/firebaseConfig';
-
-type User = {
-  uid: string;
-  email: string | null;
-};
+import { login, register, logout, onAuthChange, AuthUser } from '../services/authService';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
 
   // Verificar se há usuário autenticado ao montar
   useEffect(() => {
     console.log('📋 LoginScreen montada');
-    const unsubscribe = auth.onAuthStateChanged((currentUser: any) => {
-      if (currentUser) {
-        console.log('✅ Usuário autenticado:', currentUser.email);
-        setUser({
-          uid: currentUser.uid,
-          email: currentUser.email,
-        });
-      } else {
-        console.log('❌ Sem usuário autenticado');
-        setUser(null);
-      }
+    const unsubscribe = onAuthChange((authUser) => {
+      setUser(authUser);
     });
 
     return () => unsubscribe();
@@ -50,16 +35,12 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
-      console.log('🔍 Tentando fazer login com:', email);
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      console.log('✅ Login bem-sucedido:', userCredential.user.email);
+      await login(email, password);
       Alert.alert('Sucesso', 'Login realizado com sucesso!');
       setEmail('');
       setPassword('');
     } catch (error: any) {
-      const errorMsg = error?.message || 'Erro desconhecido';
-      console.error('❌ Erro ao fazer login:', errorMsg);
-      Alert.alert('Erro', `Falha ao fazer login: ${errorMsg}`);
+      Alert.alert('Erro', error?.message || 'Falha ao fazer login');
     } finally {
       setLoading(false);
     }
@@ -71,23 +52,14 @@ export default function LoginScreen() {
       return;
     }
 
-    if (password.length < 6) {
-      Alert.alert('Aviso', 'Senha deve ter pelo menos 6 caracteres');
-      return;
-    }
-
     setLoading(true);
     try {
-      console.log('🔍 Criando conta com:', email);
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      console.log('✅ Conta criada com sucesso:', userCredential.user.email);
+      await register(email, password, 'Usuário');
       Alert.alert('Sucesso', 'Conta criada com sucesso! Você já está autenticado.');
       setEmail('');
       setPassword('');
     } catch (error: any) {
-      const errorMsg = error?.message || 'Erro desconhecido';
-      console.error('❌ Erro ao criar conta:', errorMsg);
-      Alert.alert('Erro', `Falha ao criar conta: ${errorMsg}`);
+      Alert.alert('Erro', error?.message || 'Falha ao criar conta');
     } finally {
       setLoading(false);
     }
@@ -96,8 +68,7 @@ export default function LoginScreen() {
   const handleLogout = async () => {
     setLoading(true);
     try {
-      console.log('🔍 Fazendo logout...');
-      await signOut(auth);
+      await logout();
       console.log('✅ Logout bem-sucedido');
       Alert.alert('Sucesso', 'Você foi desconectado');
       setUser(null);

@@ -1,82 +1,41 @@
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, ScrollView } from 'react-native';
 import { useState, useEffect } from 'react';
 import { MaterialIcons } from '@expo/vector-icons';
-import { register } from '../services/authService';
+import { login } from '../services/authService';
 import { theme, spacing, fontSizes, colors, responsiveScale, isWeb, screenWidth, isAndroid } from '../config/theme';
 
-export default function RegisterScreen({ navigation }: any) {
-  const [name, setName] = useState('');
+export default function LoginSignupScreen({ navigation }: any) {
   const [email, setEmail] = useState('');
-  const [idade, setIdade] = useState('');
-  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
-    console.log('📋 RegisterScreen montada e pronta para usar');
+    console.log('📋 LoginSignupScreen montada');
   }, []);
 
-  const handleRegister = async () => {
-    console.log('🔍 Iniciando validação...');
-    console.log('Campo nome:', { valor: name, vazio: !name.trim() });
-    console.log('Campo email:', { valor: email, vazio: !email.trim() });
-    console.log('Campo idade:', { valor: idade, vazio: !idade.trim() });
-    console.log('Campo phone:', { valor: phone, vazio: !phone.trim() });
-    console.log('Campo password:', { vazio: !password.trim() });
-
-    if (!name.trim() || !email.trim() || !idade.trim() || !phone.trim() || !password.trim()) {
-      console.warn('⚠️ Validação falhou: campos vazios');
-      Alert.alert('Aviso', 'Preencha todos os campos');
-      return;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      console.warn('⚠️ Validação falhou: email inválido');
-      Alert.alert('Erro', 'Por favor, insira um email válido');
-      return;
-    }
-
-    if (password.length < 6) {
-      console.warn('⚠️ Validação falhou: senha muito curta');
-      Alert.alert('Erro', 'Senha deve ter pelo menos 6 caracteres');
+  const handleLogin = async () => {
+    if (!email.trim() || !password.trim()) {
+      Alert.alert('Aviso', 'Preencha email e senha');
       return;
     }
 
     if (password !== confirmPassword) {
-      console.warn('⚠️ Validação falhou: senhas não conferem');
       Alert.alert('Erro', 'As senhas não conferem');
       return;
     }
 
-    console.log('✅ Validação passou!');
     setLoading(true);
-
     try {
-      await register(email, password, name, {
-        idade,
-        phone,
-      });
-
-      Alert.alert('Sucesso', 'Conta criada com sucesso! Você será redirecionado para login.');
-
-      setName('');
+      await login(email, password);
+      Alert.alert('Sucesso', 'Login realizado com sucesso!');
       setEmail('');
-      setIdade('');
-      setPhone('');
       setPassword('');
       setConfirmPassword('');
-
-      setTimeout(() => {
-        navigation.navigate('LoginSignup');
-      }, 500);
     } catch (error: any) {
-      const errorMsg = error?.message || 'Erro desconhecido';
-      console.error('❌ Erro ao registrar usuário:', errorMsg);
-      console.error('📋 Erro completo:', error);
-      Alert.alert('Erro', `Falha ao registrar: ${errorMsg}`);
+      Alert.alert('Erro', error?.message || 'Falha ao fazer login');
     } finally {
       setLoading(false);
     }
@@ -125,17 +84,10 @@ export default function RegisterScreen({ navigation }: any) {
     >
       <View style={styles.card}>
         <View style={styles.headerContainer}>
-          <MaterialIcons name="person-add" size={responsiveScale(40)} color={colors.primary} />
-          <Text style={styles.title}>Criar Conta</Text>
-          <Text style={styles.subtitle}>Preencha seus dados abaixo</Text>
+          <MaterialIcons name="login" size={responsiveScale(40)} color={colors.primary} />
+          <Text style={styles.title}>Fazer Login</Text>
+          <Text style={styles.subtitle}>Autentique-se com suas credenciais</Text>
         </View>
-
-        {renderInputField(
-          <MaterialIcons name="person" size={responsiveScale(20)} color={colors.primary} />,
-          'Nome Completo',
-          name,
-          setName
-        )}
 
         {renderInputField(
           <MaterialIcons name="email" size={responsiveScale(20)} color={colors.primary} />,
@@ -143,22 +95,6 @@ export default function RegisterScreen({ navigation }: any) {
           email,
           setEmail,
           'email-address'
-        )}
-
-        {renderInputField(
-          <MaterialIcons name="cake" size={responsiveScale(20)} color={colors.primary} />,
-          'Idade',
-          idade,
-          setIdade,
-          'numeric'
-        )}
-
-        {renderInputField(
-          <MaterialIcons name="phone" size={responsiveScale(20)} color={colors.primary} />,
-          'Telefone',
-          phone,
-          setPhone,
-          'phone-pad'
         )}
 
         {renderInputField(
@@ -177,20 +113,21 @@ export default function RegisterScreen({ navigation }: any) {
           confirmPassword,
           setConfirmPassword,
           'default',
-          !showPassword
+          !showConfirmPassword,
+          () => setShowConfirmPassword(!showConfirmPassword)
         )}
 
         <TouchableOpacity
-          style={[styles.button, styles.registerButton, loading && styles.buttonDisabled]}
-          onPress={handleRegister}
+          style={[styles.button, styles.loginButton, loading && styles.buttonDisabled]}
+          onPress={handleLogin}
           disabled={loading}
         >
           {loading ? (
             <ActivityIndicator color={colors.white} />
           ) : (
             <>
-              <MaterialIcons name="check-circle" size={responsiveScale(20)} color={colors.white} />
-              <Text style={styles.buttonText}>Registrar</Text>
+              <MaterialIcons name="login" size={responsiveScale(20)} color={colors.white} />
+              <Text style={styles.buttonText}>Login</Text>
             </>
           )}
         </TouchableOpacity>
@@ -201,8 +138,17 @@ export default function RegisterScreen({ navigation }: any) {
           disabled={loading}
         >
           <MaterialIcons name="arrow-back" size={responsiveScale(20)} color={colors.white} />
-          <Text style={styles.buttonText}>Voltar para Home</Text>
+          <Text style={styles.buttonText}>Voltar</Text>
         </TouchableOpacity>
+
+        <View style={styles.divider} />
+
+        <View style={styles.signupContainer}>
+          <Text style={styles.signupText}>Não tem conta?</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+            <Text style={styles.signupLink}>Criar uma</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </ScrollView>
   );
@@ -248,7 +194,6 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.xs,
     color: colors.textSecondary,
     textAlign: 'center',
-    marginBottom: spacing.md,
   },
   inputWrapper: {
     flexDirection: 'row',
@@ -285,7 +230,7 @@ const styles = StyleSheet.create({
     alignSelf: isAndroid ? 'center' : undefined,
     width: isAndroid ? Math.min(300, screenWidth * 0.8) : '100%',
   },
-  registerButton: {
+  loginButton: {
     backgroundColor: colors.primary,
   },
   backButton: {
@@ -299,5 +244,25 @@ const styles = StyleSheet.create({
     color: colors.white,
     fontSize: fontSizes.sm,
     fontWeight: 'bold',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: colors.border,
+    marginVertical: spacing.md,
+  },
+  signupContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
+  signupText: {
+    fontSize: fontSizes.sm,
+    color: colors.textSecondary,
+  },
+  signupLink: {
+    fontSize: fontSizes.sm,
+    color: colors.primary,
+    fontWeight: '600',
   },
 });
