@@ -6,6 +6,7 @@ import {
   onAuthStateChanged,
   User,
   AuthError,
+  sendPasswordResetEmail,
 } from 'firebase/auth';
 import { auth } from './firebaseConfig';
 import { addDocument, updateDocument } from './firestoreService';
@@ -175,6 +176,28 @@ export const updateUserProfile = async (displayName: string): Promise<void> => {
     const authError = error as AuthError;
     const message = getErrorMessage(authError);
     console.error('❌ Erro ao atualizar perfil:', message);
+    throw new Error(message);
+  }
+};
+
+export const resetPassword = async (email: string): Promise<void> => {
+  try {
+    if (!email.trim()) {
+      throw new Error('Email é obrigatório');
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      throw new Error('Email inválido');
+    }
+
+    console.log('🔍 Enviando email de redefinição de senha para:', email);
+    await sendPasswordResetEmail(auth, email);
+    console.log('✅ Email de redefinição de senha enviado com sucesso');
+  } catch (error) {
+    const authError = error as AuthError;
+    const message = getErrorMessage(authError);
+    console.error('❌ Erro ao enviar email de redefinição:', message);
     throw new Error(message);
   }
 };

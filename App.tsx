@@ -6,6 +6,7 @@ import HomeScreen from './src/screens/HomeScreen';
 import DetailsScreen from './src/screens/DetailsScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
 import LoginSignupScreen from './src/screens/LoginSignupScreen';
+import ForgotPasswordScreen from './src/screens/ForgotPasswordScreen';
 import { debugFirebaseConnection } from './src/services/debugFirebase';
 
 const Stack = createNativeStackNavigator();
@@ -50,6 +51,11 @@ export default function App() {
           name="LoginSignup"
           component={LoginSignupScreen}
           options={{ title: 'Login' }}
+        />
+        <Stack.Screen
+          name="ForgotPassword"
+          component={ForgotPasswordScreen}
+          options={{ title: 'Redefinir Senha' }}
         />
       </Stack.Navigator>
       <StatusBar style="auto" />

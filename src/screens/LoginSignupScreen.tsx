@@ -143,6 +143,16 @@ export default function LoginSignupScreen({ navigation }: any) {
 
         <View style={styles.divider} />
 
+        <TouchableOpacity
+          style={styles.forgotPasswordButton}
+          onPress={() => navigation.navigate('ForgotPassword')}
+          disabled={loading}
+        >
+          <Text style={styles.forgotPasswordText}>Esqueci minha senha</Text>
+        </TouchableOpacity>
+
+        <View style={styles.divider} />
+
         <View style={styles.signupContainer}>
           <Text style={styles.signupText}>Não tem conta?</Text>
           <TouchableOpacity onPress={() => navigation.navigate('Register')}>
@@ -261,6 +271,15 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   signupLink: {
+    fontSize: fontSizes.sm,
+    color: colors.primary,
+    fontWeight: '600',
+  },
+  forgotPasswordButton: {
+    paddingVertical: spacing.md,
+    alignItems: 'center',
+  },
+  forgotPasswordText: {
     fontSize: fontSizes.sm,
     color: colors.primary,
     fontWeight: '600',

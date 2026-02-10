@@ -11,7 +11,11 @@ import {
 } from 'react-native';
 import { login, register, logout, onAuthChange, AuthUser } from '../services/authService';
 
-export default function LoginScreen() {
+interface LoginScreenProps {
+  navigation: any;
+}
+
+export default function LoginScreen({ navigation }: LoginScreenProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -154,6 +158,14 @@ export default function LoginScreen() {
             <Text style={styles.buttonText}>Criar Conta</Text>
           )}
         </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.forgotPasswordButton}
+          onPress={() => navigation.navigate('ForgotPassword')}
+          disabled={loading}
+        >
+          <Text style={styles.forgotPasswordText}>Esqueci minha senha</Text>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );
@@ -224,6 +236,15 @@ const styles = StyleSheet.create({
     color: '#333',
     textAlign: 'center',
     marginBottom: 8,
+  forgotPasswordButton: {
+    marginTop: 12,
+    alignItems: 'center',
+  },
+  forgotPasswordText: {
+    color: '#007AFF',
+    fontSize: 14,
+    fontWeight: '600',
+  },
   },
   uid: {
     fontSize: 12,
